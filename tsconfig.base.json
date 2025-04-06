@@ -15,8 +15,10 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@myngapp/email": ["libs/email/src/index.ts"],
       "@myngapp/orders": ["libs/orders/src/index.ts"],
       "@myngapp/products": ["libs/products/src/index.ts"],
+      "@myngapp/rabbitmq": ["libs/rabbitmq/src/index.ts"],
       "@myngapp/ui": ["libs/shared/ui/src/index.ts"]
     }
   },
