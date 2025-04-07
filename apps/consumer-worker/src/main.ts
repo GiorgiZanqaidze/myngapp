@@ -1,36 +1,48 @@
-/**
- * This is not a production server yet!
- * This is only a minimal backend to get started.
- */
-
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
-import { RabbitmqService } from '@myngapp/rabbitmq';
+import { Transport, MicroserviceOptions } from '@nestjs/microservices';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  // const app = await NestFactory.create(AppModule);
   const globalPrefix = 'api';
-  app.setGlobalPrefix(globalPrefix);
-  const port = process.env.PORT || 3000;
-  await app.listen(port);
-  Logger.log(
-    `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`
-  );
 
+  // Configure RabbitMQ microservice
+  // app.connectMicroservice({
+  //   transport: Transport.RMQ,
+  //   options: {
+  //     urls: ['amqp://guest:guest@host.docker.internal:5672'], // This works on Windows/Mac
+  //     queue: 'my_queue',
+  //     queueOptions: {
+  //       durable: false,
+  //     },
+  //     noAck: false,
+  //     prefetchCount: 1,
+  //   },
+  // });
 
-  const rabbit = app.get(RabbitmqService);
-
-  await rabbit.consume('email_queue', async (data, ack, nack) => {
-    try {
-      await sendEmail(data);
-      ack();
-    } catch (e) {
-      nack();
-    }
+  const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
+    transport: Transport.RMQ,
+    options: {
+      urls: ['amqp://localhost:5672'],
+      queue: 'cats_queue',
+      queueOptions: {
+        durable: false
+      },
+    },
   });
 
-  console.log('✅ Consumer is running');
+  // app.setGlobalPrefix(globalPrefix);
+
+
+  // Start all microservices
+
+  // Start the main app
+  const port = process.env.PORT || 3000;
+  await app.listen();
+  Logger.log(
+    `🚀 Application is running on: rabbit microservice is running`
+  );
 }
 
 bootstrap();
